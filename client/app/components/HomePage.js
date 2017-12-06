@@ -37,7 +37,7 @@ const styles = {
     },
     imageLogo: {
         display: 'block',
-        maxWidth: '300px',
+        maxWidth: '250px',
         maxHeight: '150px',
         width: 'auto',
         height: 'auto',
@@ -47,26 +47,27 @@ const styles = {
     },
     imageComputer: {
         display: 'block',
-        maxWidth: '80%',
-        maxHeight: '80%',
+        maxWidth: '380px',
+        maxHeight: '320px',
         width: 'auto',
         height: 'auto',
-        marginLeft: '20px',
-        marginRight: 'auto'
+        marginBottom: '40px'
     },
     header: {
         color: '#424242',
-        fontSize: '23px',
-        marginLeft: '30%',
-        marginRight: '20px',
+        fontSize: '18px',
+        maxWidth: '350px',
+        maxHeight: '200px',
+        width: 'auto',
+        height: 'auto',
         marginBottom: '40px',
-        textAlign: 'left',
+        textAlign: 'center',
         fontWeight: 100
     },
     button: {
-        width: '300px',
-        height: '50px',
-        lineHeight: '50px',
+        width: '350px',
+        height: '60px',
+        lineHeight: '60px',
         backgroundColor: '#2B0C36'
     },
     label: {
@@ -77,7 +78,7 @@ const styles = {
         fontWight: 100
     },
     overlay: {
-        height: '50px'
+        height: '60px'
     },
     footer: {
         display: 'flex',
@@ -104,10 +105,8 @@ class HomePage extends Component {
         this.props.signUserIn();
     }
 
-    render() {
-      return (
-          <div style = {styles.root}>
-            <div style = {styles.contentRowContainer}> 
+    /* 
+    <div style = {styles.contentRowContainer}> 
                 <div style = {styles.contentRow}> 
                     <img style = {styles.imageLogo} src = {Logo}/>
                     <h1 style={styles.header}>All your crypto investments in one easy dashboard. Fully encrypted and only visible to you using Blockstack Gaia storage.</h1>
@@ -121,6 +120,17 @@ class HomePage extends Component {
             <div style = {styles.footer}> 
                 <h1 style={styles.footerTitle}>Made by Satraj Bambra</h1>
             </div>
+    */
+    render() {
+      return (
+          <div style = {styles.root}>
+             <img style = {styles.imageLogo} src = {Logo}/>
+             <h1 style={styles.header}>All your crypto investments in one easy dashboard. Fully encrypted and only visible to you using Gaia storage.</h1>
+             <img style = {styles.imageComputer} src = {ComputerHome}/>
+             <RaisedButton primary ={true} label="Sign in with Blockstack" labelPosition="before" buttonStyle = {styles.button} 
+                overlayStyle={styles.overlay} labelStyle={styles.label} onClick = {this.handleSignin.bind(this)}/>
+
+            
           </div>
       );
     }
