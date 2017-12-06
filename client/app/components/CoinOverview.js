@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import TransactionList from '../components/TransactionList'
 import ToggleDisplay from 'react-toggle-display';
 
-const blockstack = require('blockstack');
 const styles = {
 	root: {
 		display: 'flex',
@@ -98,20 +97,6 @@ class CoinOverview extends Component {
 		}
 	}
 
-	loadLocalFile() {
-		console.log("Retrieving file");
-		blockstack.getFile("/transactions.json", true)
-		.then((fileContents) => {
-			console.log("Success loading file");
-			this.props.fileTransactions = JSON.parse(fileContents || '[]');
-			console.log ("Loading file transactions", this.props.fileTransactions);
-			this.generateSummary(this.props.fileTransactions[props.coin.symbol]);
-		}).catch((e) => {
-		  console.log("Error Retrieving file", e);
-		  this.createNewLocalFile();
-		});
-	}
-
 	createNewLocalFile() {
 		console.log("Creating file");
         this.setState({
@@ -185,7 +170,6 @@ class CoinOverview extends Component {
 	}
 
 	render() {
-		console.log("Render", this.props.coin.symbol, this.props.currency);
 		let formatter = new Intl.NumberFormat('en-US', {
 			style: 'currency',
 			currency: this.props.currency,

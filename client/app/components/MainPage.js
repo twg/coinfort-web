@@ -10,6 +10,7 @@ import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 import PropTypes from 'prop-types';
 import DropDownMenu from 'material-ui/DropDownMenu';
+import RefreshIndicatorView from './RefreshIndicatorView';
 import Chart from '../components/Chart';
 
 import CoinOverview from '../components/CoinOverview';
@@ -19,6 +20,7 @@ import Logo from '../../public/assets/img/white_logo_transparent.png'
 
 const coin_list_json = require('../../data/coins.json');
 const currencies = ['USD','EUR', 'JPY', 'GBP', 'CHF','CAD', 'AUD', 'NZD', 'ZAR', 'CNY'];
+const blockstack = require('blockstack');
 
 const styles = {
 	avatar: {
@@ -126,9 +128,6 @@ const styles = {
         textTransform: 'none',
         fontSize: '15px',
         fontWight: 100
-    },
-    signOutOverlay: {
-        height: '50px'
     }
 }
 
@@ -161,7 +160,35 @@ class MainPage extends Component {
 	}
 
 	componentWillMount() {
-		this.setInitialCoins();
+		this.loadLocalFile();
+	}
+
+	loadLocalFile() {
+		console.log("Retrieving file");
+		blockstack.getFile("/coinSummary.json", true)
+		.then((fileContents) => {
+			console.log("Success loading file");
+			console.log(fileContents);
+
+			fileTransactions = JSON.parse(fileContents || '{}');
+
+			let coinList = [];
+			for (var key in fileTransactions) {
+				if (fileTransactions.hasOwnProperty(key)) {
+				  coin_list_json.forEach(function(o){if (o.symbol == key) coinList.push(o);} );
+				}
+			}
+			this.setInitialCoins(coinList);
+		}).catch((e) => {
+			let coinList = []; 
+			for (var i = 0; i < 5; i++) {
+				let coin = coin_list_json[i];
+				coinList.push(coin);
+				fileTransactions[coin.symbol] = [];
+			}
+		  	this.setInitialCoins(coinList);
+		  console.log("Error Retrieving file", e);
+		});
 	}
 
 	getCurrencyConversions(coin) {
@@ -182,14 +209,8 @@ class MainPage extends Component {
 		});
 	}
 	
-	setInitialCoins() {
-		let coinList = []; 
-		for (var i = 0; i < 5; i++) {
-			let coin = coin_list_json[i];
-			coinList.push(coin);
-			fileTransactions[coin.symbol] = [];
-		}
-
+	setInitialCoins(coinList) {
+		console.log("Setting Initial Coins");
 		this.setState({
 			allCoins: coinList,
 			selectedCoin: coinList[0],
@@ -246,6 +267,8 @@ class MainPage extends Component {
 		this.setState({ 
 			selectedIndex: index 
 		});
+
+		this.saveLocalFile(JSON.stringify(fileTransactions));
 	}
 
 	handleDropdownChange(event, index, value) {
@@ -257,6 +280,16 @@ class MainPage extends Component {
 		
 		this.handleIndexSelected(this.state.selectedIndex);
 	}
+
+	saveLocalFile(contents) {
+		console.log("Putting file");
+        blockstack.putFile("/coinSummary.json", contents, true)
+        .then(() => {
+			console.log("Success putting file");
+        }).catch((e) => {
+		  console.log("Error putting file", e);
+        });
+    }
 	
 	handleSignout() {
 		this.props.signUserOut();
@@ -298,7 +331,7 @@ class MainPage extends Component {
 			return (
 				<ListItem
 					value = {index + 1} 
-					key = {coin.id}
+					key = {coin._id}
 					style = {styles.listItem} primaryText={coin.name} 
 					rightIconButton ={(
 						<IconMenu iconButtonElement={iconButtonElement} onChange={this.handleCoinDelete.bind(this)}>
@@ -316,45 +349,51 @@ class MainPage extends Component {
 			);
 		});
 
-		return (
-			<div>
-				<Drawer containerStyle = {styles.drawer} width={280} openSecondary={false} open={true} zDepth = {0}>
-					<div style = {styles.logoContainer}>
-						<img style = {styles.logo} src = {Logo}/>
-					</div>
-					<div style = {styles.currencySelectionContainer}>
-						<h1 style = {styles.dropdownTitle}>Selected Currency</h1>
-						<DropDownMenu style = {styles.dropdown} labelStyle = {styles.dropdownLabel} value={this.state.dropDownValue} iconStyle = {styles.dropdownIcon} 
-						underlineStyle = {styles.dropdownUnderlineStyle}  onChange={this.handleDropdownChange.bind(this)} autoWidth={false}>
-							<MenuItem value={1} primaryText="USD" />
-							<MenuItem value={2} primaryText="EUR" />
-							<MenuItem value={3} primaryText="JPY" />
-							<MenuItem value={4} primaryText="GBP" />
-							<MenuItem value={5} primaryText="CHF" />
-							<MenuItem value={6} primaryText="CAD" />
-							<MenuItem value={7} primaryText="AUD" />
-							<MenuItem value={8} primaryText="NZD" />
-							<MenuItem value={9} primaryText="ZAR" />
-							<MenuItem value={10} primaryText="CNY" />
-						</DropDownMenu>
-					</div>	
-					<div style = {styles.header}> 
-						<h1 style = {styles.headerTitle}>Overall Portfolio</h1>
-						<h1 style = {styles.headerSubtitle}>{formatter.format(totalMarketCap)}</h1>
-					</div>
-					<PortfolioCoinSearchBar addCoin = {this.addCoinFromSearch.bind(this)}/>
-					<SelectableListContainer key = {this.state.listKey} defaultValue={1} selectedIndex = {this.state.selectedIndex} indexUpdated = {this.handleIndexSelected.bind(this)}>
-						{this.coins}
-					</SelectableListContainer>
-					<Divider style = {styles.divider} />
-					<FlatButton style = {styles.signOutButton}  label="Sign out" primary = {false} overlayStyle={styles.signOutOverlay} labelStyle={styles.signOutLabel} onClick = {this.handleSignout.bind(this)} /> 
-				</Drawer>
-				<div style = {styles.coinOverview}> 
-					<CoinOverview coin = {this.state.selectedCoin} conversionValue = {coinConverstionValue} currency = {currentCurrency} fileTransactions = {fileTransactions} updateMainList = {this.handleTransactionUpdate.bind(this)}/>
-					<Chart symbol = {this.state.chartSymbol} currency = {currentCurrency} />
-				</div> 
-			</div>
-		);
+		if (this.state.selectedCoin) {
+			return (
+				<div>
+					<Drawer containerStyle = {styles.drawer} width={280} openSecondary={false} open={true} zDepth = {0}>
+						<div style = {styles.logoContainer}>
+							<img style = {styles.logo} src = {Logo}/>
+						</div>
+						<div style = {styles.currencySelectionContainer}>
+							<h1 style = {styles.dropdownTitle}>Selected Currency</h1>
+							<DropDownMenu style = {styles.dropdown} labelStyle = {styles.dropdownLabel} value={this.state.dropDownValue} iconStyle = {styles.dropdownIcon} 
+							underlineStyle = {styles.dropdownUnderlineStyle}  onChange={this.handleDropdownChange.bind(this)} autoWidth={false}>
+								<MenuItem value={1} primaryText="USD" />
+								<MenuItem value={2} primaryText="EUR" />
+								<MenuItem value={3} primaryText="JPY" />
+								<MenuItem value={4} primaryText="GBP" />
+								<MenuItem value={5} primaryText="CHF" />
+								<MenuItem value={6} primaryText="CAD" />
+								<MenuItem value={7} primaryText="AUD" />
+								<MenuItem value={8} primaryText="NZD" />
+								<MenuItem value={9} primaryText="ZAR" />
+								<MenuItem value={10} primaryText="CNY" />
+							</DropDownMenu>
+						</div>	
+						<div style = {styles.header}> 
+							<h1 style = {styles.headerTitle}>Overall Portfolio</h1>
+							<h1 style = {styles.headerSubtitle}>{formatter.format(totalMarketCap)}</h1>
+						</div>
+						<PortfolioCoinSearchBar addCoin = {this.addCoinFromSearch.bind(this)}/>
+						<SelectableListContainer key = {this.state.listKey} defaultValue={1} selectedIndex = {this.state.selectedIndex} indexUpdated = {this.handleIndexSelected.bind(this)}>
+							{this.coins}
+						</SelectableListContainer>
+						<Divider style = {styles.divider} />
+						<FlatButton style = {styles.signOutButton}  label="Sign out" primary = {false} labelStyle={styles.signOutLabel} onClick = {this.handleSignout.bind(this)} /> 
+					</Drawer>
+					<div style = {styles.coinOverview}> 
+						<CoinOverview coin = {this.state.selectedCoin} conversionValue = {coinConverstionValue} currency = {currentCurrency} fileTransactions = {fileTransactions} updateMainList = {this.handleTransactionUpdate.bind(this)}/>
+						<Chart symbol = {this.state.chartSymbol} currency = {currentCurrency} />
+					</div> 
+				</div>
+			);
+		} else {
+			return ( 
+				<RefreshIndicatorView />
+			);
+		}
 	}
 }
   

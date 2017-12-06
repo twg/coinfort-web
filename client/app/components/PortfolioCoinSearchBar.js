@@ -72,7 +72,6 @@ class PortfolioCoinSearchBar extends Component {
     return (
       <div style={styles.root}>
         <SearchBar style={styles.searchBar}
-          zDepth = {0}
           ref = "searchBar"
           textFieldStyle = {styles.textFieldStyle}
           popoverProps={{ style: { width: 200 } }}
