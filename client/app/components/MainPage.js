@@ -190,8 +190,6 @@ class MainPage extends Component {
 			fileTransactions[coin.symbol] = [];
 		}
 
-		console.log ("File transactions", fileTransactions);
-		
 		this.setState({
 			allCoins: coinList,
 			selectedCoin: coinList[0],
@@ -218,8 +216,6 @@ class MainPage extends Component {
 
 		fileTransactions[coin.symbol] = [];
 
-		console.log ("File transactions", fileTransactions);
-
 		this.setState({
 			allCoins: coinList
 		});
@@ -232,8 +228,6 @@ class MainPage extends Component {
 		let coinList = this.state.allCoins;
 		
 		delete fileTransactions[coinList[index].symbol];
-
-		//console.log ("File transactions", fileTransactions);
 
 		coinList.splice(index, 1);
 
@@ -248,7 +242,7 @@ class MainPage extends Component {
 
 	handleTransactionUpdate() {
 		var index = this.state.allCoins.findIndex(x => x._id === this.state.selectedCoin._id) + 1;
-		console.log ("Updating", index);
+
 		this.setState({ 
 			selectedIndex: index 
 		});
@@ -265,7 +259,7 @@ class MainPage extends Component {
 	}
 	
 	handleSignout() {
-
+		this.props.signUserOut();
 	}
 
 	render() {
@@ -278,7 +272,6 @@ class MainPage extends Component {
 		let totalMarketCap = 0.0;
 
 		this.coins = this.state.allCoins.map((coin, index) => {
-			console.log(coin.symbol);
 			let individualConversionValue = 0;
 			if (conversionResponseJson && coin.symbol in conversionResponseJson) {
 				individualConversionValue = conversionResponseJson[coin.symbol][currentCurrency];

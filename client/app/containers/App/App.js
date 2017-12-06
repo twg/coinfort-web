@@ -9,7 +9,6 @@ import PortfolioCoinSearchBar from '../../components/PortfolioCoinSearchBar';
 import PortfolioList from '../../components/PortfolioList';
 import RefreshIndicatorView from '../../components/RefreshIndicatorView'
 import Footer from '../../components/Footer';
-import InputForm from '../../components/Home/InputForm';
 import MainPage from '../../components/MainPage';
 
 const blockstack = require('blockstack');
@@ -78,7 +77,7 @@ class App extends Component {
       logInContent = (
         <MuiThemeProvider muiTheme={muiTheme}>
         <div>
-          <MainPage />
+          <MainPage signUserOut = {this.signOut}/>
         </div>
       </MuiThemeProvider>
       );

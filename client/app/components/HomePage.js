@@ -28,6 +28,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         margin: 'auto',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
         width: '50%',
@@ -102,11 +103,6 @@ class HomePage extends Component {
     handleSignin(button) {
         this.props.signUserIn();
     }
-    /*<img style = {styles.image} src = {Logo}/>
-            <h1 style={styles.header}>Easily track and manage your cryptocurrency portfolio.</h1>
-            <h1 style={styles.subHeader}>Your data is encrypted and only visible to you using Blockstack Gaia storage.</h1>
-            <RaisedButton primary ={true} label="Sign in with Blockstack" labelPosition="before" buttonStyle = {styles.button} 
-            overlayStyle={styles.overlay} labelStyle={styles.label} onClick = {this.handleSignin.bind(this)}/>*/
 
     render() {
       return (

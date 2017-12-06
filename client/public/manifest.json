@@ -1,9 +1,9 @@
 {
   "name": "Coinfort",
-  "start_url": "http://coinfolio-app.herokuapp.com",
+  "start_url": "http://www.coinfort.io",
   "description": "Easily track and manage your cryptocurrency portfolio.",
   "icons": [{
-    "src": "http://coinfolio-app.herokuapp.com/assets/img/icon-192x192.png",
+    "src": "http://www.coinfort.io/assets/img/icon-192x192.png",
     "sizes": "192x192",
     "type": "image/png"
   }]
