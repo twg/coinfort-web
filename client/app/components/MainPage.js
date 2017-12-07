@@ -17,6 +17,8 @@ import CoinOverview from '../components/CoinOverview';
 import PortfolioCoinSearchBar from '../components/PortfolioCoinSearchBar';
 import SelectableListContainer from '../components/SelectableListContainer';
 import OrderBook from '../components/OrderBook';
+import Footer from '../components/Footer';
+
 import Logo from '../../public/assets/img/white_logo_transparent.png'
 
 const coin_list_json = require('../../data/coins.json');
@@ -38,10 +40,11 @@ const styles = {
 	},
 	logo: {
 		display: 'block',
-		maxWidth: '200px',
-		maxHeight: '80px',
+		maxWidth: '150px',
+		maxHeight: '100px',
 		width: 'auto',
-		height: 'auto'
+		height: 'auto',
+		margin: 'auto'
 	},
 	header: {
 		display: 'flex',
@@ -358,7 +361,7 @@ class MainPage extends Component {
 							<img style = {styles.logo} src = {Logo}/>
 						</div>
 						<div style = {styles.currencySelectionContainer}>
-							<h1 style = {styles.dropdownTitle}>Selected Currency</h1>
+							<h1 style = {styles.dropdownTitle}>Base Currency</h1>
 							<DropDownMenu style = {styles.dropdown} labelStyle = {styles.dropdownLabel} value={this.state.dropDownValue} iconStyle = {styles.dropdownIcon} 
 							underlineStyle = {styles.dropdownUnderlineStyle}  onChange={this.handleDropdownChange.bind(this)} autoWidth={false}>
 								<MenuItem value={1} primaryText="USD" />
@@ -388,6 +391,7 @@ class MainPage extends Component {
 						<CoinOverview coin = {this.state.selectedCoin} conversionValue = {coinConverstionValue} currency = {currentCurrency} fileTransactions = {fileTransactions} updateMainList = {this.handleTransactionUpdate.bind(this)}/>
 						<Chart symbol = {this.state.symbol} currency = {currentCurrency} />
 						<OrderBook symbol = {this.state.symbol} currency = {currentCurrency} conversionValue = {coinConverstionValue}/>
+						<Footer />
 					</div> 
 				</div>
 			);

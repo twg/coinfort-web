@@ -10,7 +10,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        height: '100vh',
+        height: '90vh',
         margin: 'auto',
         alignItems: 'center',
         justifyContent: 'center'
@@ -37,7 +37,7 @@ const styles = {
     },
     imageLogo: {
         display: 'block',
-        maxWidth: '250px',
+        maxWidth: '200px',
         maxHeight: '150px',
         width: 'auto',
         height: 'auto',
@@ -47,8 +47,8 @@ const styles = {
     },
     imageComputer: {
         display: 'block',
-        maxWidth: '380px',
-        maxHeight: '320px',
+        maxWidth: '430px',
+        maxHeight: '350px',
         width: 'auto',
         height: 'auto',
         marginBottom: '40px'

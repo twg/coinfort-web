@@ -101,6 +101,7 @@ class App extends Component {
         <MuiThemeProvider muiTheme={muiTheme}>
         <div>
           <HomePage signUserIn = {this.signIn}/>
+          <Footer />
         </div>
       </MuiThemeProvider>
       );
