@@ -16,12 +16,12 @@ class OrderBookItem extends Component {
 			minimumFractionDigits: 2
 		});
 
-		rowColor = "#757575"
+		var rowColor = "#757575";
 		
 		if (this.props.order.type == "Buy") {
-			rowColor = "#81C784"
+			rowColor = "#81C784";
 		} else if (this.props.order.type == "Sell") {
-			rowColor = "#EF9A9A";
+			rowColor = "#EF9A9A";	
 		}
 
 		var style = { 
