@@ -16,6 +16,7 @@ import Chart from '../components/Chart';
 import CoinOverview from '../components/CoinOverview';
 import PortfolioCoinSearchBar from '../components/PortfolioCoinSearchBar';
 import SelectableListContainer from '../components/SelectableListContainer';
+import OrderBook from '../components/OrderBook';
 import Logo from '../../public/assets/img/white_logo_transparent.png'
 
 const coin_list_json = require('../../data/coins.json');
@@ -151,7 +152,7 @@ class MainPage extends Component {
 		this.state = {
 			allCoins: [],
 			selectedCoin: null,
-			chartSymbol: "",
+			symbol: "",
 			portfolioValue: "",
 			selectedIndex: 1,
 			listKey: Math.random(),
@@ -214,7 +215,7 @@ class MainPage extends Component {
 		this.setState({
 			allCoins: coinList,
 			selectedCoin: coinList[0],
-			chartSymbol: coinList[0].symbol
+			symbol: coinList[0].symbol
 		});
 
 		this.getCurrencyConversions(coinList[0]);
@@ -225,7 +226,7 @@ class MainPage extends Component {
 
 		this.setState({
 			selectedIndex: index,
-			chartSymbol: coin.symbol
+			symbol: coin.symbol
 		});
 
 		this.getCurrencyConversions(coin);
@@ -255,7 +256,7 @@ class MainPage extends Component {
 		this.setState({
 			allCoins: coinList,
 			listKey: Math.random(),
-			chartSymbol: coinList[0].symbol
+			symbol: coinList[0].symbol
 		});
 
 		this.getCurrencyConversions(coinList[0]);
@@ -385,7 +386,8 @@ class MainPage extends Component {
 					</Drawer>
 					<div style = {styles.coinOverview}> 
 						<CoinOverview coin = {this.state.selectedCoin} conversionValue = {coinConverstionValue} currency = {currentCurrency} fileTransactions = {fileTransactions} updateMainList = {this.handleTransactionUpdate.bind(this)}/>
-						<Chart symbol = {this.state.chartSymbol} currency = {currentCurrency} />
+						<Chart symbol = {this.state.symbol} currency = {currentCurrency} />
+						<OrderBook symbol = {this.state.symbol} currency = {currentCurrency} conversionValue = {coinConverstionValue}/>
 					</div> 
 				</div>
 			);

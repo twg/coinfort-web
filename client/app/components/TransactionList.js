@@ -84,7 +84,7 @@ const styles = {
 	positiveStateLabel: {
 		textTransform: 'none',
     	color: '#424242'
-  	},
+  	}
 }
 
 var selectedDate = null;

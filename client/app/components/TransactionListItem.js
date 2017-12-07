@@ -28,8 +28,7 @@ class TransactionListItem extends Component {
 
 		var style = { 
 			color: '#FFFFFF',
-			backgroundColor: rowColor,
-			borderBottom: '1px solid  rgba(97, 97, 97, .1)' 
+			backgroundColor: rowColor
 	  };
 
 		return (	

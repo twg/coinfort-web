@@ -104,23 +104,6 @@ class HomePage extends Component {
     handleSignin(button) {
         this.props.signUserIn();
     }
-
-    /* 
-    <div style = {styles.contentRowContainer}> 
-                <div style = {styles.contentRow}> 
-                    <img style = {styles.imageLogo} src = {Logo}/>
-                    <h1 style={styles.header}>All your crypto investments in one easy dashboard. Fully encrypted and only visible to you using Blockstack Gaia storage.</h1>
-                    <RaisedButton primary ={true} label="Sign in with Blockstack" labelPosition="before" buttonStyle = {styles.button} 
-            overlayStyle={styles.overlay} labelStyle={styles.label} onClick = {this.handleSignin.bind(this)}/>
-                </div>
-                <div style = {styles.contentRow}> 
-                    <img style = {styles.imageComputer} src = {ComputerHome}/>
-                </div>
-            </div>
-            <div style = {styles.footer}> 
-                <h1 style={styles.footerTitle}>Made by Satraj Bambra</h1>
-            </div>
-    */
     render() {
       return (
           <div style = {styles.root}>
@@ -129,8 +112,6 @@ class HomePage extends Component {
              <img style = {styles.imageComputer} src = {ComputerHome}/>
              <RaisedButton primary ={true} label="Sign in with Blockstack" labelPosition="before" buttonStyle = {styles.button} 
                 overlayStyle={styles.overlay} labelStyle={styles.label} onClick = {this.handleSignin.bind(this)}/>
-
-            
           </div>
       );
     }
