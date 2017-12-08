@@ -63,7 +63,9 @@ class OrderBook extends Component {
     }
 
     componentWillReceiveProps(props) {
-        this.loadData();
+        if (props != this.props) {
+            this.loadData();
+        }
     }
     
     componentDidMount() {
@@ -146,7 +148,7 @@ class OrderBook extends Component {
     render() {
         this.orders = this.state.orders.map(order => {
 			return (
-				<OrderBookItem key = {order.id} order = {order} currency = {this.props.currency} />
+				<OrderBookItem key = {Math.random()} order = {order} currency = {this.props.currency} />
 			);
         });
         
