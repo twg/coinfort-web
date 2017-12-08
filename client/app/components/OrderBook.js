@@ -53,6 +53,7 @@ const styles = {
 
 var allOrders = [];
 var currentSubs = null;
+var isRefreshing = false;
 
 class OrderBook extends Component {
     constructor() {
@@ -63,7 +64,7 @@ class OrderBook extends Component {
     }
 
     componentWillReceiveProps(props) {
-        if (props != this.props) {
+        if (props.symbol.toString() != this.props.toString()) {
             this.loadData();
         }
     }
@@ -78,7 +79,14 @@ class OrderBook extends Component {
     }
 
     loadData() {
+        isRefreshing = true;
+        
         allOrders = [];
+
+        if (currentSubs) {
+            socket.emit('SubRemove', { subs: currentSubs });
+            currentSubs = null;
+        }
 
         this.setState({orders: allOrders});
 
@@ -87,12 +95,9 @@ class OrderBook extends Component {
         fetch(url)
         .then((response) => response.json())
         .then((responseJson) => {
-            if (currentSubs) {
-                socket.emit('SubRemove', { subs: currentSubs });
-            }
-
             currentSubs = responseJson[this.props.currency]['TRADES'];
             this.startSocket(currentSubs);
+            isRefreshing = false;
         })
         .catch((error) => {
             console.error(error);
@@ -114,41 +119,43 @@ class OrderBook extends Component {
     }
 
     updateData(currentData) {
-        var coinfsym = CCC.STATIC.CURRENCY.getSymbol(this.props.symbol);
-        var cointsym = CCC.STATIC.CURRENCY.getSymbol(this.props.currency)
-        var incomingTrade = CCC.TRADE.unpack(currentData);
-        var newTrade = {
-            market: incomingTrade['M'],
-            type: incomingTrade['T'],
-            id: incomingTrade['ID'],
-            price: CCC.convertValueToDisplay(cointsym, incomingTrade['P']),
-            quantity: CCC.convertValueToDisplay(coinfsym, incomingTrade['Q']),
-            total: CCC.convertValueToDisplay(cointsym, incomingTrade['TOTAL'])
-        };
-    
-        if (incomingTrade['F'] & 1) {
-            newTrade['type'] = "Buy";
-        }
-        else if (incomingTrade['F'] & 2) {
-            newTrade['type'] = "Sell";
-        }
-        else {
-            newTrade['type'] = "Unknown";
-        }
-
-        allOrders.push(newTrade);
-        if (allOrders.length > 5) {
-            allOrders.shift();
-        }
-
-        setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 2000);
+        console.log(isRefreshing);
+        if (!isRefreshing) {
+            var coinfsym = CCC.STATIC.CURRENCY.getSymbol(this.props.symbol);
+            var cointsym = CCC.STATIC.CURRENCY.getSymbol(this.props.currency)
+            var incomingTrade = CCC.TRADE.unpack(currentData);
+            var newTrade = {
+                market: incomingTrade['M'],
+                type: incomingTrade['T'],
+                id: incomingTrade['ID'],
+                price: CCC.convertValueToDisplay(cointsym, incomingTrade['P']),
+                quantity: CCC.convertValueToDisplay(coinfsym, incomingTrade['Q']),
+                total: CCC.convertValueToDisplay(cointsym, incomingTrade['TOTAL'])
+            };
         
+            if (incomingTrade['F'] & 1) {
+                newTrade['type'] = "Buy";
+            }
+            else if (incomingTrade['F'] & 2) {
+                newTrade['type'] = "Sell";
+            }
+            else {
+                newTrade['type'] = "Unknown";
+            }
+    
+            allOrders.push(newTrade);
+            if (allOrders.length > 5) {
+                allOrders.shift();
+            }
+    
+            setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 4000);
+        }
     }
 
     render() {
-        this.orders = this.state.orders.map(order => {
+        this.orders = this.state.orders.map((order, index) => {
 			return (
-				<OrderBookItem key = {Math.random()} order = {order} currency = {this.props.currency} />
+				<OrderBookItem key = {order + index} order = {order} currency = {this.props.currency} />
 			);
         });
         
