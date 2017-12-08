@@ -52,6 +52,7 @@ const styles = {
 }
 
 var allOrders = [];
+var currentSubs = null;
 
 class OrderBook extends Component {
     constructor() {
@@ -84,7 +85,11 @@ class OrderBook extends Component {
         fetch(url)
         .then((response) => response.json())
         .then((responseJson) => {
-            var currentSubs = responseJson[this.props.currency]['TRADES'];
+            if (currentSubs) {
+                socket.emit('SubRemove', { subs: currentSubs });
+            }
+
+            currentSubs = responseJson[this.props.currency]['TRADES'];
             this.startSocket(currentSubs);
         })
         .catch((error) => {
