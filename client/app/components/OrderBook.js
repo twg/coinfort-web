@@ -64,9 +64,7 @@ class OrderBook extends Component {
     }
 
     componentWillReceiveProps(props) {
-        if (props.symbol.toString() != this.props.toString()) {
-            this.loadData();
-        }
+        this.loadData();
     }
     
     componentDidMount() {
@@ -97,7 +95,6 @@ class OrderBook extends Component {
         .then((responseJson) => {
             currentSubs = responseJson[this.props.currency]['TRADES'];
             this.startSocket(currentSubs);
-            isRefreshing = false;
         })
         .catch((error) => {
             console.error(error);
@@ -106,21 +103,22 @@ class OrderBook extends Component {
 
     openSocket() {
         socket.on('m', function(currentData)  {
-            var tradeField = currentData.substr(0, currentData.indexOf("~"));
-
-            if (tradeField == CCC.STATIC.TYPE.TRADE) {
-                this.updateData(currentData);
+            if (!isRefreshing) { 
+                var tradeField = currentData.substr(0, currentData.indexOf("~"));
+                
+                if (tradeField == CCC.STATIC.TYPE.TRADE) {
+                    this.updateData(currentData);
+                }
             }
         }.bind(this))
     }
 
     startSocket(currentSubs) {
+        isRefreshing = false;
         socket.emit('SubAdd', { subs: currentSubs});
     }
 
     updateData(currentData) {
-        console.log(isRefreshing);
-        if (!isRefreshing) {
             var coinfsym = CCC.STATIC.CURRENCY.getSymbol(this.props.symbol);
             var cointsym = CCC.STATIC.CURRENCY.getSymbol(this.props.currency)
             var incomingTrade = CCC.TRADE.unpack(currentData);
@@ -147,9 +145,8 @@ class OrderBook extends Component {
             if (allOrders.length > 5) {
                 allOrders.shift();
             }
-    
-            setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 4000);
-        }
+
+            setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 5000);
     }
 
     render() {
