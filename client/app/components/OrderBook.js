@@ -60,8 +60,13 @@ class OrderBook extends Component {
 				orders: []
 		}
     }
+
+    componentWillReceiveProps(props) {
+        this.loadData();
+    }
     
     componentDidMount() {
+        this.openSocket();
         this.loadData();
     }
 
@@ -70,6 +75,10 @@ class OrderBook extends Component {
     }
 
     loadData() {
+        allOrders = [];
+
+        this.setState({orders: allOrders});
+
         let url = "https://min-api.cryptocompare.com/data/subs?fsym=" + this.props.symbol + "&tsyms=" + this.props.currency;
         
         fetch(url)
@@ -83,7 +92,7 @@ class OrderBook extends Component {
         });
     }
 
-    startSocket(currentSubs) {
+    openSocket() {
         socket.on('m', function(currentData)  {
             var tradeField = currentData.substr(0, currentData.indexOf("~"));
 
@@ -91,7 +100,9 @@ class OrderBook extends Component {
                 this.updateData(currentData);
             }
         }.bind(this))
+    }
 
+    startSocket(currentSubs) {
         socket.emit('SubAdd', { subs: currentSubs});
     }
 
@@ -123,7 +134,7 @@ class OrderBook extends Component {
             allOrders.shift();
         }
 
-        setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 5000);
+        setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 2000);
         
     }
 
