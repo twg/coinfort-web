@@ -53,7 +53,7 @@ const styles = {
 
 var allOrders = [];
 var currentSubs = null;
-var isRefreshing = false;
+var timerMixin = require('react-timer-mixin');
 
 class OrderBook extends Component {
     constructor() {
@@ -70,6 +70,10 @@ class OrderBook extends Component {
     componentDidMount() {
         this.openSocket();
         this.loadData();
+        timerMixin.setInterval(
+            () => { this.refreshList() },
+            2500
+        );
     }
 
     componentWillUnmount() {
@@ -77,12 +81,10 @@ class OrderBook extends Component {
     }
 
     loadData() {
-        isRefreshing = true;
-        
         allOrders = [];
 
         if (currentSubs) {
-            socket.emit('SubRemove', { subs: currentSubs });
+            socket.emit('SubRemove', { subs: currentSubs});
             currentSubs = null;
         }
 
@@ -94,7 +96,7 @@ class OrderBook extends Component {
         .then((response) => response.json())
         .then((responseJson) => {
             currentSubs = responseJson[this.props.currency]['TRADES'];
-            this.startSocket(currentSubs);
+            this.sendSocketSubs(currentSubs);
         })
         .catch((error) => {
             console.error(error);
@@ -103,50 +105,52 @@ class OrderBook extends Component {
 
     openSocket() {
         socket.on('m', function(currentData)  {
-            if (!isRefreshing) { 
-                var tradeField = currentData.substr(0, currentData.indexOf("~"));
+            var tradeField = currentData.substr(0, currentData.indexOf("~"));
                 
-                if (tradeField == CCC.STATIC.TYPE.TRADE) {
-                    this.updateData(currentData);
-                }
+            if (tradeField == CCC.STATIC.TYPE.TRADE) {
+                this.updateData(currentData);
             }
         }.bind(this))
     }
 
-    startSocket(currentSubs) {
-        isRefreshing = false;
+    sendSocketSubs(currentSubs) {
         socket.emit('SubAdd', { subs: currentSubs});
     }
 
     updateData(currentData) {
-            var coinfsym = CCC.STATIC.CURRENCY.getSymbol(this.props.symbol);
-            var cointsym = CCC.STATIC.CURRENCY.getSymbol(this.props.currency)
-            var incomingTrade = CCC.TRADE.unpack(currentData);
-            var newTrade = {
-                market: incomingTrade['M'],
-                type: incomingTrade['T'],
-                id: incomingTrade['ID'],
-                price: CCC.convertValueToDisplay(cointsym, incomingTrade['P']),
-                quantity: CCC.convertValueToDisplay(coinfsym, incomingTrade['Q']),
-                total: CCC.convertValueToDisplay(cointsym, incomingTrade['TOTAL'])
-            };
-        
-            if (incomingTrade['F'] & 1) {
-                newTrade['type'] = "Buy";
-            }
-            else if (incomingTrade['F'] & 2) {
-                newTrade['type'] = "Sell";
-            }
-            else {
-                newTrade['type'] = "Unknown";
-            }
+        var coinfsym = CCC.STATIC.CURRENCY.getSymbol(this.props.symbol);
+        var cointsym = CCC.STATIC.CURRENCY.getSymbol(this.props.currency);
+        var incomingTrade = CCC.TRADE.unpack(currentData);
+        var newTrade = {
+            market: incomingTrade['M'],
+            type: incomingTrade['T'],
+            id: incomingTrade['ID'],
+            price: CCC.convertValueToDisplay(cointsym, incomingTrade['P']),
+            quantity: CCC.convertValueToDisplay(coinfsym, incomingTrade['Q']),
+            total: CCC.convertValueToDisplay(cointsym, incomingTrade['TOTAL'])
+        };
     
-            allOrders.push(newTrade);
-            if (allOrders.length > 5) {
-                allOrders.shift();
-            }
+        if (incomingTrade['F'] & 1) {
+            newTrade['type'] = "Buy";
+        }
+        else if (incomingTrade['F'] & 2) {
+            newTrade['type'] = "Sell";
+        }
+        else {
+            newTrade['type'] = "Unknown";
+        }
 
-            setTimeout(function() { this.setState({orders: allOrders});}.bind(this), 5000);
+        if (incomingTrade['FSYM'] === this.props.symbol) {
+            allOrders.push(newTrade); 
+        }
+
+        if (allOrders.length > 5) {
+            allOrders.shift();
+        }
+    }
+
+    refreshList() {
+        this.setState({orders: allOrders});
     }
 
     render() {

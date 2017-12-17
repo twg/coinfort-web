@@ -85,7 +85,6 @@ class PortfolioCoinSearchBar extends Component {
             text: val.name,
             value: (
               <MenuItem
-                autoWidth = {true}
                 primaryText={val.name}
                 style={styles.menuItemStyle}
               />

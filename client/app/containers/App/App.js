@@ -28,7 +28,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      totalCoinValue: "$0.00",
+      totalCoinValue: "0.00",
       coinToAdd: null,
     }
 

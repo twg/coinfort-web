@@ -8,7 +8,7 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
-import PropTypes from 'prop-types';
+import PropTypes, { array } from 'prop-types';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import RefreshIndicatorView from './RefreshIndicatorView';
 import Chart from '../components/Chart';
@@ -168,30 +168,43 @@ class MainPage extends Component {
 	}
 
 	loadLocalFile() {
-		console.log("Retrieving file");
+		console.log("Creating | Loading file");
 		blockstack.getFile("/coinSummary.json", true)
 		.then((fileContents) => {
 			console.log("Success loading file");
-			console.log(fileContents);
 
 			fileTransactions = JSON.parse(fileContents || '{}');
 
 			let coinList = [];
 			for (var key in fileTransactions) {
 				if (fileTransactions.hasOwnProperty(key)) {
-				  coin_list_json.forEach(function(o){if (o.symbol == key) coinList.push(o);} );
+					coin_list_json.forEach(function(o){if (o.symbol == key) coinList.push(o);} );
 				}
 			}
+			currentCurrency = fileTransactions["currency"];
+
+			var index = 0;
+			currencies.some(function(currency, i) {
+				if (currency == currentCurrency) {
+					index = i + 1;
+					return true;
+				}
+			});
+	
+			this.setState ({
+				dropDownValue: index
+			});
+			
 			this.setInitialCoins(coinList);
 		}).catch((e) => {
 			let coinList = []; 
-			for (var i = 0; i < 5; i++) {
+			for (var i = 0; i < 8; i++) {
 				let coin = coin_list_json[i];
 				coinList.push(coin);
 				fileTransactions[coin.symbol] = [];
 			}
+			fileTransactions["currency"] = currentCurrency;
 		  	this.setInitialCoins(coinList);
-		  console.log("Error Retrieving file", e);
 		});
 	}
 
@@ -209,12 +222,11 @@ class MainPage extends Component {
 			});		
 		})
 		.catch((error) => {
-		console.error(error);
+			console.error(error);
 		});
 	}
 	
 	setInitialCoins(coinList) {
-		console.log("Setting Initial Coins");
 		this.setState({
 			allCoins: coinList,
 			selectedCoin: coinList[0],
@@ -236,16 +248,29 @@ class MainPage extends Component {
 	}
 	
 	addCoinFromSearch(coin) {
-		let coinList = this.state.allCoins; 
-		coinList.push(coin);
+		let coinList = this.state.allCoins;
 
-		fileTransactions[coin.symbol] = [];
+		var coinFound = false;
+		for(var i = 0; i < coinList.length; i++) {
+			if (coinList[i]._id == coin._id) {
+				coinFound = true;
+				break;
+			}
+		}
+		
+		if (!coinFound) {
+			coinList.push(coin);
 
-		this.setState({
-			allCoins: coinList
-		});
+			fileTransactions[coin.symbol] = [];
 
-		this.getCurrencyConversions(coinList[coinList.length]);
+			this.setState({
+				allCoins: coinList
+			});
+
+			this.getCurrencyConversions(coinList[coinList.length]);
+
+			this.handleTransactionUpdate();
+		}
 	}
 
 	handleCoinDelete(event, coinId, value) {
@@ -263,6 +288,7 @@ class MainPage extends Component {
 		});
 
 		this.getCurrencyConversions(coinList[0]);
+		this.handleTransactionUpdate();
 	}
 
 	handleTransactionUpdate() {
@@ -276,22 +302,25 @@ class MainPage extends Component {
 	}
 
 	handleDropdownChange(event, index, value) {
-        currentCurrency = currencies[index];
+		currentCurrency = currencies[index];
+		
+		fileTransactions["currency"] = currentCurrency;
        
         this.setState({
             dropDownValue: value
 		});
 		
 		this.handleIndexSelected(this.state.selectedIndex);
+		this.handleTransactionUpdate();
 	}
 
 	saveLocalFile(contents) {
-		console.log("Putting file");
+		console.log("Saving file", contents);
         blockstack.putFile("/coinSummary.json", contents, true)
         .then(() => {
-			console.log("Success putting file");
+			console.log("Success saving file");
         }).catch((e) => {
-		  console.log("Error putting file", e);
+		  console.log("Error saving file", e);
         });
     }
 	
@@ -363,7 +392,7 @@ class MainPage extends Component {
 						<div style = {styles.currencySelectionContainer}>
 							<h1 style = {styles.dropdownTitle}>Base Currency</h1>
 							<DropDownMenu style = {styles.dropdown} labelStyle = {styles.dropdownLabel} value={this.state.dropDownValue} iconStyle = {styles.dropdownIcon} 
-							underlineStyle = {styles.dropdownUnderlineStyle}  onChange={this.handleDropdownChange.bind(this)} autoWidth={false}>
+							underlineStyle = {styles.dropdownUnderlineStyle}  onChange={this.handleDropdownChange.bind(this)}>
 								<MenuItem value={1} primaryText="USD" />
 								<MenuItem value={2} primaryText="EUR" />
 								<MenuItem value={3} primaryText="JPY" />
