@@ -33,7 +33,7 @@ class Footer extends Component {
   render() {
     return (
         <div style = {styles.root}>
-           <h1 style={styles.header}>Made by <a href={"https://twitter.com/sbambra"} style={styles.link} target="_blank">Satraj Bambra</a>.</h1>
+           <h1 style={styles.header}>Coinfort v2 is coming soon. Get <a href={"mailto:teamcoinfort@gmail.com"} style={styles.link} target="_blank">in touch</a> if interested in learning more.</h1>
            <h1 style={styles.header}>Coinfort © 2017. Powered by Blockstack.</h1>
         </div>
     );
